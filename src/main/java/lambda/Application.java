@@ -1,8 +1,5 @@
 package lambda;
 
-import utils.NumContainer;
-
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
@@ -23,9 +20,24 @@ public class Application implements Expression {
     }
 
     @Override
-    public void getFreeVariables(Set<String> bound, Set<String> free) {
-        left.getFreeVariables(bound, free);
-        right.getFreeVariables(bound, free);
+    public Set<String> getFreeVariables() {
+        Set<String> freeVariables = left.getFreeVariables();
+        freeVariables.addAll(right.getFreeVariables());
+        return freeVariables;
+    }
+
+    @Override
+    public Set<String> getBoundVariables() {
+        Set<String> boundVariables = left.getBoundVariables();
+        boundVariables.addAll(right.getBoundVariables());
+        return boundVariables;
+    }
+
+    @Override
+    public Set<String> getAllVariables() {
+        Set<String> allVariables = left.getAllVariables();
+        allVariables.addAll(right.getAllVariables());
+        return allVariables;
     }
 
     @Override
@@ -42,13 +54,6 @@ public class Application implements Expression {
     }
 
     @Override
-    public Expression alphaConversion(NumContainer count, Map<String, String> renamingMap) {
-        Expression newLeft = left.alphaConversion(count, renamingMap);
-        Expression newRight = right.alphaConversion(count, renamingMap);
-        return new Application(newLeft, newRight);
-    }
-
-    @Override
     public Application cloneExpression() {
         return this;
     }
@@ -58,12 +63,6 @@ public class Application implements Expression {
         return new Application(left.rename(nameToChange, newName), right.rename(nameToChange, newName));
     }
 
-    @Override
-    public Expression testRenaming(NumContainer count, Map<String, String> renamingMap) {
-        Expression newLeft = left.testRenaming(count, renamingMap);
-        Expression newRight = right.testRenaming(count, renamingMap);
-        return new Application(newLeft, newRight);
-    }
 
     @Override
     public boolean equals(Object o) {

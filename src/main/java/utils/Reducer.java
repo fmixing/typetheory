@@ -6,17 +6,12 @@ import lambda.Expression;
 import lambda.Variable;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 
 public class Reducer {
 
     private static Map<Expression, Expression> reduceMap = new HashMap<>();
 
-    /**
-     * Будем полагаться в этом методе, что все переименования уже выполнены,
-     * и у каждой абстракции своя уникальная переменная
-     */
     public static Expression reduce(Expression expressionToReduce) {
         if (expressionToReduce instanceof Variable) {
             return expressionToReduce;
@@ -31,15 +26,15 @@ public class Reducer {
             Expression expression = headNormalForm(application.getLeft());
 
             if (expression instanceof Abstraction) {
-//                Expression substitute = reduceMap.get(application);
-//
-//                if (substitute != null) {
-//                    return substitute;
-//                }
+                Expression substitute = reduceMap.get(application);
 
-                Expression substitute = makeReduction((Abstraction) expression, application.getRight());
+                if (substitute != null) {
+                    return substitute;
+                }
 
-//                reduceMap.put(application, substitute);
+                substitute = makeReduction((Abstraction) expression, application.getRight());
+
+                reduceMap.put(application, substitute);
 
                 return reduce(substitute);
             }

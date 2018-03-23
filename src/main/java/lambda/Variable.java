@@ -1,8 +1,6 @@
 package lambda;
 
-import utils.NumContainer;
-
-import java.util.Map;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
@@ -14,10 +12,22 @@ public class Variable implements Expression {
         this.name = name;
     }
 
-    public void getFreeVariables(Set<String> bound, Set<String> free) {
-        if (!bound.contains(name)) {
-            free.add(name);
-        }
+    public Set<String> getFreeVariables() {
+        HashSet<String> singleton = new HashSet<>();
+        singleton.add(name);
+        return singleton;
+    }
+
+    @Override
+    public Set<String> getBoundVariables() {
+        return new HashSet<>();
+    }
+
+    @Override
+    public Set<String> getAllVariables() {
+        HashSet<String> singleton = new HashSet<>();
+        singleton.add(name);
+        return singleton;
     }
 
     @Override
@@ -42,19 +52,6 @@ public class Variable implements Expression {
     public Expression rename(String nameToChange, String newName) {
         if (name.equals(nameToChange)) {
             return new Variable(newName);
-        }
-        return cloneExpression();
-    }
-
-    @Override
-    public Expression alphaConversion(NumContainer count, Map<String, String> renamingMap) {
-        return cloneExpression();
-    }
-
-    @Override
-    public Expression testRenaming(NumContainer count, Map<String, String> renamingMap) {
-        if (renamingMap.containsKey(name)) {
-            return new Variable(renamingMap.get(name));
         }
         return cloneExpression();
     }

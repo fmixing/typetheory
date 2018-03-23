@@ -1,10 +1,7 @@
 package lambda;
 
-import utils.NumContainer;
 import utils.Statics;
 
-import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 public class Abstraction implements Expression {
@@ -19,12 +16,24 @@ public class Abstraction implements Expression {
     }
 
     @Override
-    public void getFreeVariables(Set<String> bound, Set<String> free) {
-        boolean add = bound.add(variable.getName());
-        expression.getFreeVariables(bound, free);
-        if (add) {
-            bound.remove(variable.getName());
-        }
+    public Set<String> getFreeVariables() {
+        Set<String> freeVariables = expression.getFreeVariables();
+        freeVariables.remove(variable.getName());
+        return freeVariables;
+    }
+
+    @Override
+    public Set<String> getBoundVariables() {
+        Set<String> boundVariables = expression.getBoundVariables();
+        boundVariables.add(variable.getName());
+        return boundVariables;
+    }
+
+    @Override
+    public Set<String> getAllVariables() {
+        Set<String> allVariables = expression.getAllVariables();
+        allVariables.add(variable.getName());
+        return allVariables;
     }
 
     @Override
@@ -34,15 +43,33 @@ public class Abstraction implements Expression {
 
     @Override
     public Expression substitute(String nameToChange, Expression substitution) {
-        // Если выражение вида \x.y x, и x мы хотим заменить на что-то, то заменять в данном выражении ничего не надо
-        HashSet<String> free = new HashSet<>();
-        expression.getFreeVariables(new HashSet<>(), free);
+        Set<String> free = expression.getFreeVariables();
 
+        // Если выражение вида \x.y x, и x мы хотим заменить на что-то, то заменять в данном выражении ничего не надо.
+        // Также заменять не надо, если переменная на замену не содержится в теле абстракции в виде свободной переменной
         if (variable.getName().equals(nameToChange) || !free.contains(nameToChange)) {
             return cloneExpression();
         }
-        Expression newExpression = expression.substitute(nameToChange, substitution);
-        return new Abstraction(variable, newExpression);
+
+        Set<String> freeVariables = substitution.getFreeVariables();
+
+        // Если текущая абстракция не связывает выражение для подстановки, то просто спускаемся внутрь
+        if (!freeVariables.contains(variable.getName())) {
+            return new Abstraction(variable, expression.substitute(nameToChange, substitution));
+        }
+
+        // В текущий момент имя абстракции содержится в подстановке => переменная станет связной.
+        // Заменим все вхождения имени на новое имя
+
+        String newName = Statics.renamingTemplate + Statics.counter.increment();
+
+        Expression rename = expression.rename(variable.getName(), newName);
+
+        // Теперь для внутри абстракции произошла замена имени абстракции на новое уникальное имя,
+        // можем произвести подстановку
+
+        Expression newExpression = rename.substitute(nameToChange, substitution);
+        return new Abstraction(new Variable(newName), newExpression);
     }
 
     @Override
@@ -56,42 +83,6 @@ public class Abstraction implements Expression {
             return new Abstraction(new Variable(newName), expression.rename(nameToChange, newName));
         }
         return new Abstraction(variable.cloneExpression(), expression.rename(nameToChange, newName));
-    }
-
-    @Override
-    public Expression alphaConversion(NumContainer count, Map<String, String> renamingMap) {
-        int currCount = count.increment();
-
-        // здесь уже все связанные переменные переименованы каждый в свое уникальное имя
-        Expression renamed = expression.alphaConversion(count, renamingMap);
-        String newName = Statics.renamingTemplate + currCount;
-        // теперь можно просто заменить имя переменной этой абстракции на новое имя
-        Expression allRenamed = renamed.rename(variable.getName(), newName);
-
-        // по новому уникальному имени мы хотим уметь находить старое
-        renamingMap.put(newName, variable.getName());
-
-        return new Abstraction(new Variable(newName), allRenamed);
-    }
-
-    @Override
-    public Expression testRenaming(NumContainer count, Map<String, String> renamingMap) {
-        if (renamingMap.containsKey(variable.getName())) {
-            Expression expression = this.expression.testRenaming(count, renamingMap);
-
-            return new Abstraction(new Variable(renamingMap.get(variable.getName())), expression);
-        }
-        else {
-            int currCount = count.increment();
-
-            String newName = Statics.renamingTemplate + currCount;
-
-            renamingMap.put(variable.getName(), newName);
-
-            Expression expression = this.expression.testRenaming(count, renamingMap);
-
-            return new Abstraction(new Variable(newName), expression);
-        }
     }
 
     @Override

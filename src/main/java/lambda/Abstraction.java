@@ -3,6 +3,7 @@ package lambda;
 import utils.NumContainer;
 import utils.Statics;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -34,8 +35,11 @@ public class Abstraction implements Expression {
     @Override
     public Expression substitute(String nameToChange, Expression substitution) {
         // Если выражение вида \x.y x, и x мы хотим заменить на что-то, то заменять в данном выражении ничего не надо
-        if (variable.getName().equals(nameToChange)) {
-            return new Abstraction(variable, expression);
+        HashSet<String> free = new HashSet<>();
+        expression.getFreeVariables(new HashSet<>(), free);
+
+        if (variable.getName().equals(nameToChange) || !free.contains(nameToChange)) {
+            return cloneExpression();
         }
         Expression newExpression = expression.substitute(nameToChange, substitution);
         return new Abstraction(variable, newExpression);
@@ -43,7 +47,7 @@ public class Abstraction implements Expression {
 
     @Override
     public Abstraction cloneExpression() {
-        return new Abstraction(variable.cloneExpression(), expression.cloneExpression());
+        return this;
     }
 
     @Override
@@ -71,12 +75,23 @@ public class Abstraction implements Expression {
     }
 
     @Override
-    public Expression renameBack(Map<String, String> renamingMap) {
-        // Очевидно, что в процессе нормализации новые абстракции не могли появиться (или не очевидно, это мы посмотрим)
-        assert renamingMap.containsKey(variable.getName());
+    public Expression testRenaming(NumContainer count, Map<String, String> renamingMap) {
+        if (renamingMap.containsKey(variable.getName())) {
+            Expression expression = this.expression.testRenaming(count, renamingMap);
 
-        Expression expression = this.expression.renameBack(renamingMap);
-        return new Abstraction(new Variable(renamingMap.get(variable.getName())), expression);
+            return new Abstraction(new Variable(renamingMap.get(variable.getName())), expression);
+        }
+        else {
+            int currCount = count.increment();
+
+            String newName = Statics.renamingTemplate + currCount;
+
+            renamingMap.put(variable.getName(), newName);
+
+            Expression expression = this.expression.testRenaming(count, renamingMap);
+
+            return new Abstraction(new Variable(newName), expression);
+        }
     }
 
     @Override

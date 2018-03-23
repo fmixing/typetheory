@@ -21,11 +21,11 @@ public class Task1 {
 
 //        System.out.println(expression);
 
-        Expression expression1 = expression.alphaConversion(new NumContainer(), new HashMap<>());
+        Expression expression1 = expression.testRenaming(new NumContainer(), new HashMap<>());
 
         System.out.println(expression1);
 
-        Expression reduced = Reducer.headNormalForm(expression1);
+        Expression reduced = Reducer.reduce(expression1);
 
         System.out.println(reduced);
 

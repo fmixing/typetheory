@@ -25,11 +25,5 @@ public interface Expression {
      */
     Expression alphaConversion(NumContainer count, Map<String, String> renamingMap);
 
-    /**
-     * Метод для обратного переименования
-     *
-     * для ускорения можно добавить лайфхаки типа возвращения (expr, bool), в которой хранить,
-     * встречалась ли переменная для переименования внутри текущей абстракции
-     */
-    Expression renameBack(Map<String, String> renamingMap);
+    Expression testRenaming(NumContainer count, Map<String, String> renamingMap);
 }

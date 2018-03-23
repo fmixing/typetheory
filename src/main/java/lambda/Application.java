@@ -50,7 +50,7 @@ public class Application implements Expression {
 
     @Override
     public Application cloneExpression() {
-        return new Application(left.cloneExpression(), right.cloneExpression());
+        return this;
     }
 
     @Override
@@ -59,9 +59,9 @@ public class Application implements Expression {
     }
 
     @Override
-    public Expression renameBack(Map<String, String> renamingMap) {
-        Expression newLeft = left.renameBack(renamingMap);
-        Expression newRight = right.renameBack(renamingMap);
+    public Expression testRenaming(NumContainer count, Map<String, String> renamingMap) {
+        Expression newLeft = left.testRenaming(count, renamingMap);
+        Expression newRight = right.testRenaming(count, renamingMap);
         return new Application(newLeft, newRight);
     }
 

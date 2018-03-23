@@ -52,7 +52,7 @@ public class Variable implements Expression {
     }
 
     @Override
-    public Expression renameBack(Map<String, String> renamingMap) {
+    public Expression testRenaming(NumContainer count, Map<String, String> renamingMap) {
         if (renamingMap.containsKey(name)) {
             return new Variable(renamingMap.get(name));
         }

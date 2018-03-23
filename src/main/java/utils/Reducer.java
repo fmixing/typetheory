@@ -6,11 +6,12 @@ import lambda.Expression;
 import lambda.Variable;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 public class Reducer {
 
-    private static Map<String, Expression> reduceMap = new HashMap<>();
+    private static Map<Expression, Expression> reduceMap = new HashMap<>();
 
     /**
      * Будем полагаться в этом методе, что все переименования уже выполнены,
@@ -30,7 +31,17 @@ public class Reducer {
             Expression expression = headNormalForm(application.getLeft());
 
             if (expression instanceof Abstraction) {
-                return reduce(makeReduction((Abstraction) expression, application.getRight()));
+//                Expression substitute = reduceMap.get(application);
+//
+//                if (substitute != null) {
+//                    return substitute;
+//                }
+
+                Expression substitute = makeReduction((Abstraction) expression, application.getRight());
+
+//                reduceMap.put(application, substitute);
+
+                return reduce(substitute);
             }
             else {
                 return new Application(reduce(expression), reduce(application.getRight()));
@@ -38,8 +49,7 @@ public class Reducer {
         }
     }
 
-    public static Expression headNormalForm(Expression expression) {
-
+    private static Expression headNormalForm(Expression expression) {
         if (expression instanceof Variable) {
             return expression;
         }
@@ -53,7 +63,17 @@ public class Reducer {
             Expression headNormalForm = headNormalForm(application.getLeft());
 
             if (headNormalForm instanceof Abstraction) {
-                return headNormalForm(makeReduction((Abstraction) headNormalForm, application.getRight()));
+                Expression substitute = reduceMap.get(application);
+
+                if (substitute != null) {
+                    return substitute;
+                }
+
+                substitute = headNormalForm(makeReduction((Abstraction) headNormalForm, application.getRight()));
+
+                reduceMap.put(application, substitute);
+
+                return substitute;
             }
             else {
                 return new Application(headNormalForm, application.getRight());
@@ -62,15 +82,6 @@ public class Reducer {
     }
 
     private static Expression makeReduction(Abstraction abstraction, Expression toSubstitute) {
-//        if (reduceMap.containsKey(abstraction.getVariable().getName())) {
-//            return reduceMap.get(abstraction.getVariable().getName());
-//        }
-//        else {
-//            // В (\x.M)y берем M, подставляем в него вместо x y
-//            Expression substitute = abstraction.getExpression().substitute(abstraction.getVariable().getName(), toSubstitute);
-//            reduceMap.put(abstraction.getVariable().getName(), substitute);
-//            return substitute;
-//        }
         // В (\x.M)y берем M, подставляем в него вместо x y
         return abstraction.getExpression().substitute(abstraction.getVariable().getName(), toSubstitute);
     }

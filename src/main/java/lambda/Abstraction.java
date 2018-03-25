@@ -23,13 +23,6 @@ public class Abstraction implements Expression {
     }
 
     @Override
-    public Set<String> getBoundVariables() {
-        Set<String> boundVariables = expression.getBoundVariables();
-        boundVariables.add(variable.getName());
-        return boundVariables;
-    }
-
-    @Override
     public Set<String> getAllVariables() {
         Set<String> allVariables = expression.getAllVariables();
         allVariables.add(variable.getName());

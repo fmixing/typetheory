@@ -6,8 +6,6 @@ public interface Expression {
 
     Set<String> getFreeVariables();
 
-    Set<String> getBoundVariables();
-
     /**
      * Нужен для получения нового уникального имени
      */

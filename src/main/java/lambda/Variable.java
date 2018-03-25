@@ -19,11 +19,6 @@ public class Variable implements Expression {
     }
 
     @Override
-    public Set<String> getBoundVariables() {
-        return new HashSet<>();
-    }
-
-    @Override
     public Set<String> getAllVariables() {
         HashSet<String> singleton = new HashSet<>();
         singleton.add(name);

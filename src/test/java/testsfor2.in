@@ -1,0 +1,6 @@
+\x.x
+a b
+a b c
+\f.\x.f (f x)
+\a.\b.\f.\x. a f (b f x)
+(\a.\b.\f.\x.a f (b f x)) (\f.\x.f(f x)) (\f.\x.f(f x))

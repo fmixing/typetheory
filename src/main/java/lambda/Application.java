@@ -27,13 +27,6 @@ public class Application implements Expression {
     }
 
     @Override
-    public Set<String> getBoundVariables() {
-        Set<String> boundVariables = left.getBoundVariables();
-        boundVariables.addAll(right.getBoundVariables());
-        return boundVariables;
-    }
-
-    @Override
     public Set<String> getAllVariables() {
         Set<String> allVariables = left.getAllVariables();
         allVariables.addAll(right.getAllVariables());

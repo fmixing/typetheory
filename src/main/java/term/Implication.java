@@ -1,6 +1,7 @@
 package term;
 
 import java.util.Objects;
+import java.util.Set;
 
 public class Implication implements Term {
 
@@ -21,6 +22,13 @@ public class Implication implements Term {
     @Override
     public Term substitute(String name, Term termToSubstitute) {
         return new Implication(left.substitute(name, termToSubstitute), right.substitute(name, termToSubstitute));
+    }
+
+    @Override
+    public Set<String> getFreeVariables() {
+        Set<String> freeVariables = left.getFreeVariables();
+        freeVariables.addAll(right.getFreeVariables());
+        return freeVariables;
     }
 
     public Term getLeft() {

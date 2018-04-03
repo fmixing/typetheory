@@ -19,6 +19,18 @@ public class LambdaBaseListener implements LambdaListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterLet_expr(LambdaParser.Let_exprContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitLet_expr(LambdaParser.Let_exprContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterExpression(LambdaParser.ExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}

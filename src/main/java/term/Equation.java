@@ -1,8 +1,9 @@
 package term;
 
 import java.util.Objects;
+import java.util.Set;
 
-public class Equation implements Term {
+public class Equation {
 
     private final Term left;
 
@@ -13,14 +14,18 @@ public class Equation implements Term {
         this.right = right;
     }
 
-    @Override
     public boolean containsVariable(String name) {
         return left.containsVariable(name) || right.containsVariable(name);
     }
 
-    @Override
-    public Term substitute(String name, Term termToSubstitute) {
+    public Equation substitute(String name, Term termToSubstitute) {
         return new Equation(left.substitute(name, termToSubstitute), right.substitute(name, termToSubstitute));
+    }
+
+    public Set<String> getFreeVariables() {
+        Set<String> freeVariables = left.getFreeVariables();
+        freeVariables.addAll(right.getFreeVariables());
+        return freeVariables;
     }
 
     public Term getLeft() {

@@ -28,6 +28,21 @@ public class Parser {
         }
     }
 
+    public static Expression parseLetExpression(String inPath) {
+        try (Scanner in = new Scanner(new File(inPath))) {
+            if (in.hasNextLine()) {
+                String expression = in.nextLine();
+
+                return parseLetInternal(expression);
+            }
+            else {
+                throw new RuntimeException("File is empty");
+            }
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static List<Expression> parseExpressions(String inPath) {
         List<Expression> expressions = new ArrayList<>();
 
@@ -50,5 +65,13 @@ public class Parser {
         TokenStream ts = new CommonTokenStream(lexer);
         LambdaParser parser = new LambdaParser(ts);
         return parser.expression().expr;
+    }
+
+    private static Expression parseLetInternal(String expression) {
+        CodePointCharStream is = CharStreams.fromString(expression);
+        LambdaLexer lexer = new LambdaLexer(is);
+        TokenStream ts = new CommonTokenStream(lexer);
+        LambdaParser parser = new LambdaParser(ts);
+        return parser.let_expr().expr;
     }
 }

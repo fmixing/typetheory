@@ -1,5 +1,6 @@
 package term;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -23,6 +24,13 @@ public class TypeVariable implements Term {
            return this;
         }
         return termToSubstitute;
+    }
+
+    @Override
+    public Set<String> getFreeVariables() {
+        Set<String> set = new HashSet<>();
+        set.add(name);
+        return set;
     }
 
     public String getName() {

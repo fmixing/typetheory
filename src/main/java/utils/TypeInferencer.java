@@ -17,7 +17,8 @@ public class TypeInferencer {
         Map<String, Term> nameToType = new HashMap<>();
         Set<Equation> equations = new HashSet<>();
         Term type = createEquationSystem(types, nameToType, equations, expression);
-        return solveEquationSystem(type, types, equations);
+        Optional<Term> maybeType = solveEquationSystem(type, equations);
+        return maybeType.flatMap(term -> substituteToType(term, types, equations));
     }
 
     /**
@@ -77,7 +78,7 @@ public class TypeInferencer {
         }
     }
 
-    private static Optional<Term> solveEquationSystem(Term type, Map<Expression, Term> types, Set<Equation> equations) {
+    static Optional<Term> solveEquationSystem(Term type, Set<Equation> equations) {
         Set<Equation> prevEquations = new HashSet<>(equations);
         Set<Equation> currEquations = new HashSet<>();
 
@@ -125,11 +126,17 @@ public class TypeInferencer {
             
             drainTo(prevEquations, currEquations);
         }
+        equations.clear();
+        equations.addAll(currEquations);
 
+        return Optional.of(type);
+    }
+
+    private static Optional<Term> substituteToType(Term type, Map<Expression, Term> types, Set<Equation> currEquations) {
         // Теперь в currEquations содержатся все необходимые уравнения вида x = T. Нужно подставить их
         currEquations.forEach(equation -> {
             if (!(equation.getLeft() instanceof TypeVariable)) {
-                throw new RuntimeException();
+                throw new RuntimeException(equation.getLeft().toString());
             }
         });
 

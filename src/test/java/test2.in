@@ -1,1 +1,1 @@
-\a.\b.\f.\x. a f (b f x)
+(\f.\x.f (f x)) (\f.\x.f (f x)) (\f.\x.f (f x)) (\f.\x.f (f x)) (\f.\x.f (f x)) (\f.\x.f (f x)) (\f.\x.f (f x)) (\f.\x.f (f x))

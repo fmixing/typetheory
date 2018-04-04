@@ -37,8 +37,6 @@ public class TypeInferencerLet {
                 term = term.substitute(name, new TypeVariable(getNewName()));
             }
 
-//            gamma.put((Variable) expression, term);
-
             return Optional.of(term);
         }
         else if (expression instanceof Application) {
@@ -62,18 +60,18 @@ public class TypeInferencerLet {
             // Подставляем в тип левого выражения подстановку из правого
             Term t1Substituted = makeSubstitutions(t1.get(), s2);
 
-            // Исправляем контекст на контекст с подстановкой
-            makeSubstitutions(gamma, s2);
-
             TypeVariable type = new TypeVariable(getNewName());
 
             Implication implication = new Implication(t2.get(), type);
 
             // Решаем уравнение
-            List<Pair<TypeVariable, Term>> unify = unify(new Equation(t1Substituted, implication));
+            Optional<List<Pair<TypeVariable, Term>>> maybeUnify = unify(new Equation(t1Substituted, implication));
 
-            // Исправляем контекст на контекст с подстановкой
-            makeSubstitutions(gamma, unify);
+            if (!maybeUnify.isPresent()) {
+                return Optional.empty();
+            }
+
+            List<Pair<TypeVariable, Term>> unify = maybeUnify.get();
 
             // Подставляем в левую подстановку правую
             List<Pair<TypeVariable, Term>> composed = makeComposition(s1, s2);
@@ -174,13 +172,13 @@ public class TypeInferencerLet {
         return right;
     }
 
-    private static List<Pair<TypeVariable, Term>> unify(Equation equation) {
+    private static Optional<List<Pair<TypeVariable, Term>>> unify(Equation equation) {
         HashSet<Equation> equations = new HashSet<>();
         equations.add(equation);
         Optional<Term> a = TypeInferencer.solveEquationSystem(new TypeVariable("a"), equations);
 
         if (!a.isPresent()) {
-            throw new RuntimeException();
+            return Optional.empty();
         }
 
         List<Pair<TypeVariable, Term>> unification = new ArrayList<>();
@@ -193,7 +191,7 @@ public class TypeInferencerLet {
             unification.add(new Pair<>((TypeVariable) currEquation.getLeft(), currEquation.getRight()));
         });
 
-        return unification;
+        return Optional.of(unification);
     }
 
     private static Term makeSubstitutions(Term type, List<Pair<TypeVariable, Term>> substitution) {

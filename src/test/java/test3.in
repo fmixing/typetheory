@@ -1,1 +1,1 @@
-\x.\x.x
+let x = \f.\x.f(x) in x x
